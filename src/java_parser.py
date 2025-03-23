@@ -10,6 +10,25 @@ class JavaFile:
     extends:    Optional[str] = None
     implements: list[str]     = field(default_factory=lambda: [])
     
+    @property
+    def class_path(self) -> str:
+        return f'{self.package}.{self.class_name}'
+    
+    @property
+    def extend_package(self) -> str:
+        # If extend is imported, then its package is not from the current package
+        for import_class_path in self.imports:
+            if self.extends in import_class_path:
+                return import_class_path
+        return self.package         # else, the class_path is  the current package
+    
+    @property
+    def extend_class_path(self) -> str:
+        return f'{self.extend_package}.{self.extends}'
+
+    @property
+    def implements_class_path(self) -> list[str]:
+        return [f'{self.package}.{implement}' for implement in self.implements]
 
 
 

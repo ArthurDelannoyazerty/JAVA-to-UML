@@ -4,3 +4,6 @@
 .env
 
 data/java_files_exemple/
+data/output/
+
+**.pyc
