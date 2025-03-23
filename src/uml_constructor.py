@@ -66,23 +66,3 @@ class UMLConstructor:
         uml += '\n\n@enduml'
         return uml
     
-
-
-if __name__=='__main__':
-    javafile = JavaFile(package='esa.esoc.ops.osc.must.dataaccess', 
-                        imports=['java.sql.ResultSet', 'java.sql.SQLException', 
-                                'java.text.SimpleDateFormat', 'java.util.LinkedList', 
-                                'esa.esoc.ops.osc.dataaccess.MustException', 
-                                'esa.esoc.ops.osc.utils.time.TimeUtils'], 
-                        class_name='MUSTParamTimeRecordsImpl', 
-                        extends='MUSTParamRecordsImpl', 
-                        implements=['MUSTParamTimeRecords'])
-    print(javafile)
-
-    uml_constructor = UMLConstructor()
-    uml_constructor.add_javafile(javafile, add_imports=True)
-    uml = uml_constructor.get_uml()
-    print(uml)
-
-    with open('data/output/o.txt', 'w') as f:
-        f.write(uml)
