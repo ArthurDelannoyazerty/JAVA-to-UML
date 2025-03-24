@@ -42,7 +42,25 @@ class JavaParser:
     
 
     def parse(self) -> JavaFile:
+        is_multi_line_comment = False
         for index_line, line in enumerate(self.text_lines):
+
+            # Comment part handle
+            if '/*' in line:
+                is_multi_line_comment = True
+                continue    # no '*/' in the same line
+
+            if is_multi_line_comment and '*/' in line:
+                is_multi_line_comment = False
+                continue
+
+            if '//'==line.lstrip(' \t')[:2]:        # Current line is a single line comment
+                continue
+
+            if is_multi_line_comment:
+                continue
+
+
             if line.startswith('package'):
                 package_name = line.split(' ')[1].strip(' ;\n')
                 self.java_file.package = package_name
@@ -52,30 +70,39 @@ class JavaParser:
                 self.java_file.imports.append(import_name)
                 continue
             elif ' class ' in line:
-                splited_line = line.split(' ')
-                for index, word in enumerate(splited_line):
+
+                # get the full line
+                complete_line_class = ''                # the final string that contains all the implements
+                index_char = 0
+                current_char = line[index_char]         # Current char
+                index_line_class = index_line           # index of the current line
+                while current_char!='{':
+                    if current_char=='\n':                    # if end of the line, next line and start of the new line
+                        index_line_class += 1
+                        index_char = 0
+                    current_char = self.text_lines[index_line_class][index_char]        # update current char
+                    complete_line_class += current_char                                      # Add the current char to the final string
+                    index_char += 1                                                      # next char
+                complete_line_class = complete_line_class[:-1]
+
+                # full class line analysis
+                splited_line_class = complete_line_class.split(' ')
+                for index, word in enumerate(splited_line_class):
                     word = word.strip(' \n')
                     if word=='class':
-                        self.java_file.class_name = splited_line[index+1]
+                        self.java_file.class_name = splited_line_class[index+1]
                     elif word=='extends':
-                        self.java_file.extends = splited_line[index+1]
+                        self.java_file.extends = splited_line_class[index+1]
                     elif word=='implements':
-                        # Init variables for the char by char loop
-                        string_complete_implements = ''                                         # the final string that contains all the implements
-                        current_char = ''                                                       # Current char
-                        index_char_implements = line.find('implements') + len('implements')     # index of the start of the implements in the current line
-                        index_line_implements = index_line                                      # index of the current line
-                        while current_char!='{':
-                            if index_char_implements==len(self.text_lines[index_line_implements]):          # if end of the line, next line and start of the new line
-                                index_line_implements += 1
-                                index_char_implements = 0
-                            current_char = self.text_lines[index_line_implements][index_char_implements]    # current char
-                            string_complete_implements += current_char                                      # Add the current char to the final string
-                            index_char_implements += 1                                                      # next char
                         
-                        # remove '{', split the implements by ',' and removed useless char ' \n\t' and store it 
-                        string_complete_implements = string_complete_implements[:-1]                            
-                        splited_implements = string_complete_implements.split(',')
+                        if 'extends' in splited_line_class[index:]:
+                            index_extends = splited_line_class.index('extends')
+                            implements_words_list = splited_line_class[index+1:index_extends]
+                        else:
+                            implements_words_list = splited_line_class[index+1:]
+
+                        implement_words = ' '.join(implements_words_list)
+                        splited_implements = implement_words.split(',')
                         splited_implements = [implement.strip(' \n\t') for implement in splited_implements]
                         
                         self.java_file.implements = splited_implements

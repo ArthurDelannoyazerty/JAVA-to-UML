@@ -21,11 +21,8 @@ def main():
     
     uml_constructor = UMLConstructor()
     for filepath in java_filepath:
-        try:
-            javafile = JavaParser(filepath).parse()
-            uml_constructor.add_javafile(javafile, add_imports=False)
-        except:
-            continue
+        javafile = JavaParser(filepath).parse()
+        uml_constructor.add_javafile(javafile, add_imports=False)
     uml = uml_constructor.get_uml()
 
     with open('data/output/o.txt', 'w') as f:

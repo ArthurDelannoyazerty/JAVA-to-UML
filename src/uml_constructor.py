@@ -31,8 +31,9 @@ class UMLConstructor:
     
 
     def add_extend(self, javafile:JavaFile) -> None:
-        self.add_package(javafile.extend_package, javafile.extends)
-        self.extends.append((javafile.class_path, javafile.extend_class_path))
+        if javafile.extends is not None:
+            self.add_package(javafile.extend_package, javafile.extends)
+            self.extends.append((javafile.class_path, javafile.extend_class_path))
 
     def add_implements(self, javafile:JavaFile) -> None:
         for implement_class_path in javafile.implements_class_path:
